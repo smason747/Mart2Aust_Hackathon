@@ -2,7 +2,7 @@
 |Auslogo| Mart2Aust
 ======================
 
-.. |Auslogo| image:: https://raw.githubusercontent.com/mesoOSU/Mart2Aust_Hackathon/master/doc/_static/img/AusRecon_logo.png
+.. |Auslogo| image:: https://raw.githubusercontent.com/mesoOSU/Mart2Aust_Hackathon/master/doc/_static/img/hackathon_logo.png
    :width: 100 
 
 Mart2Aust is a port of the Matlab Proect AusRecon written in python. AusRecon
