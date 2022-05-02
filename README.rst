@@ -1,9 +1,10 @@
+|Auslogo| 
 ======================
-|Auslogo| Mart2Aust
+Mart2Aust Hackathon
 ======================
 
 .. |Auslogo| image:: https://raw.githubusercontent.com/mesoOSU/Mart2Aust_Hackathon/master/doc/_static/img/hackathon_logo.png
-   :width: 100 
+   :width: 400 
 
 Mart2Aust is a port of the Matlab Proect AusRecon written in python. AusRecon
 was originally written using MTEX, and as Orix is the closest comaparable
@@ -15,7 +16,7 @@ In the meantime, any work based off of this repo should cite the manuscript
 at the following `link <https://onlinelibrary.wiley.com/iucr/doi/10.1107/S1600576720011103>`_,
 as well as the `AusRecon Paper <https://link.springer.com/article/10.1007/s11661-019-05514-4>`_.
 
-The current Alpha version of AusRecon can be found `Here <https://github.com/mesoOSU/AusRecon>`_
+The current Alpha version of AusRecon can be found `here <https://github.com/mesoOSU/AusRecon>`_
 
 Below this point is the original orix Readme.rst 
 ---
