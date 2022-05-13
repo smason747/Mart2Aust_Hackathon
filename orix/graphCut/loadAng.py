@@ -24,7 +24,7 @@ def loadAng(filePath):
     lineNum = 0
     line = file.readline()
     while line[0] == '#':
-        print(lineNum, line)
+        # print(lineNum, line)
         for subs in strings:
             if subs in line:
                 start = line.index(':')
@@ -38,8 +38,8 @@ def loadAng(filePath):
     splitLast.remove('\n')
     while("" in splitLast) :
         splitLast.remove("")
-    print(splitLast)
-    print(len(splitLast))
+    # print(splitLast)
+    # print(len(splitLast))
 
     stringsOut.append(len(splitLast))
 
