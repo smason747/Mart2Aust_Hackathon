@@ -13,7 +13,7 @@ from orix.vector import Vector3d
 
 from loadAng import loadAng, getLibraryPhaseList
 
-dataPath = 'data/'
+dataPath = 'Mart2Aust/orix/graphCut/data/'
 # fileName = 'ferrite.ang' ### hexgrid
 fileName = 'steel_ebsd.ang' ### squaregrid
 target = dataPath + fileName
