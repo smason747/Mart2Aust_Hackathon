@@ -13,7 +13,7 @@ from orix.vector import Vector3d
 
 from loadAng import loadAng, getLibraryPhaseList
 
-dataPath = 'Mart2Aust/orix/graphCut/data/'
+dataPath = r'C:\Users\ashle\Documents\GitHub\Mart2Aust_Hackathon\orix\graphCut\data\\'
 # fileName = 'ferrite.ang' ### hexgrid
 fileName = 'steel_ebsd.ang' ### squaregrid
 target = dataPath + fileName
@@ -157,3 +157,15 @@ if GRID == 'HexGrid':
     axes=plt.gca()
     axes.set_aspect(0.5)
 plt.show()
+
+import networkx as nx
+import scipy.sparse as sp
+C = g.get_nx_graph()
+sparseArr = nx.to_scipy_sparse_array(C)
+sparseUpperArr = sp.triu(sparseArr)
+# adjArr = sp.csr_matrix.todense(sparseUpperArr)
+# print(adjArr.shape)
+
+from full_from_diag import full_from_diag
+
+full_m = full_from_diag(sparseUpperArr)
