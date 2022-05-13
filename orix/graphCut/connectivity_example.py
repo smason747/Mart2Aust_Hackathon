@@ -21,7 +21,7 @@ import numpy as np
 import maxflow
 from orix import data, io, plot
 from orix.crystal_map import CrystalMap, Phase, PhaseList
-from orix.quaternion import Orientation, Rotation, symmetry
+from orix.quaternion import Orientation, Rotation, symmetry, Misorientation
 from orix.vector import Vector3d
 plt.close('all')
 
@@ -77,6 +77,7 @@ ipw = 0.01  #inplane weight
 g = maxflow.GraphFloat()
 nodeids = g.add_grid_nodes((305, 305)) #int(np.sqrt(len(dp)))
 
+
 # arrange x and y corrdinates for ferrite phase and rgb values 
 for_network = fer_x, fer_y, rgb_fe[:,0], rgb_fe[:,1], rgb_fe[:,2]
 for_network = np.asarray(for_network).T
@@ -88,8 +89,10 @@ for xx in range(len(for_network)):
     img[coordx, coordy] = for_network[xx,2] #only using r channel for now--will be replaced with somehting else later
 img = img.T #it gets turned around
 
+structure = maxflow.vonNeumann_structure(ndim=2, directed=True)
+
 # start creating the network for graph cut
-g.add_grid_edges(nodeids, ipw, symmetric=True)
+g.add_grid_edges(nodeids, ipw, structure=structure, symmetric=True)
 g.add_grid_tedges(nodeids, img, 1-img)
 g.maxflow() #get graph cut
 
@@ -101,7 +104,6 @@ import networkx as nx
 import scipy.sparse as sp
 AA = nx.to_scipy_sparse_array(C)
 sparseUpperArr = sp.triu(AA)
-
 
 u,v,wt = sp.find(sparseUpperArr)
 connectivity = np.asanyarray([u,v])
@@ -117,10 +119,15 @@ connectivity2 = connectivity[:, ~out_plane_loc]
 #%%
 o1 = xmap2.rotations[connectivity2[0,:]]
 o2 = xmap2.rotations[connectivity2[1,:]]
-m = (~o1).outer(o2)
+
+m = Misorientation([o1.data, o2.data])
+m.symmetry = (symmetry.Oh, symmetry.Oh)
+m = m.map_into_symmetry_reduced_zone()
+
+#m = (~o1).outer(o2)
 
 #%%
-m2 = Orientation(m, symmetry.Oh).map_into_symmetry_reduced_zone()
+m2 = m.map_into_symmetry_reduced_zone()
 D2 = m2.angle
 
 '''
@@ -129,10 +136,10 @@ NEXT STEP: ASSIGN D2 AS EDGE WEIGHTS, THEN PERFORM GRAPH CUT ON IT
 
 
 #%% plot graph cut
-sgm = g.get_grid_segments(nodeids)
-img2 = np.int_(np.logical_not(sgm))
-from matplotlib import pyplot as ppl
-ppl.imshow(img2)
-ppl.show()
+#sgm = g.get_grid_segments(nodeids)
+#img2 = np.int_(np.logical_not(sgm))
+#from matplotlib import pyplot as ppl
+#ppl.imshow(img2)
+#ppl.show()
 
 
