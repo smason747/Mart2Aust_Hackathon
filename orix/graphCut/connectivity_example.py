@@ -28,7 +28,7 @@ plt.close('all')
 #%%
 ################## load materials and image 
 # this whole section will be replaced by graph cut function eventually
-path = r'/Users/paytone/Documents/GitHub/maxflow_for_matsci/Data/steel_ebsd.ang'
+path = 'Mart2Aust/orix/graphCut/data/steel_ebsd.ang'
 
 # Read each column from the file
 euler1, euler2, euler3, x, y, iq, dp, phase_id, sem, fit  = np.loadtxt(path, unpack=True)
