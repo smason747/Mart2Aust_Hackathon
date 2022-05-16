@@ -78,6 +78,7 @@ g = maxflow.GraphFloat()
 nodeids = g.add_grid_nodes((305, 305)) #int(np.sqrt(len(dp)))
 
 
+#
 # arrange x and y corrdinates for ferrite phase and rgb values 
 for_network = fer_x, fer_y, rgb_fe[:,0], rgb_fe[:,1], rgb_fe[:,2]
 for_network = np.asarray(for_network).T
@@ -96,6 +97,13 @@ g.add_grid_edges(nodeids, ipw, structure=structure, symmetric=True)
 g.add_grid_tedges(nodeids, img, 1-img)
 g.maxflow() #get graph cut
 
+#%% plot graph cut
+sgm = g.get_grid_segments(nodeids)
+img2 = np.int_(np.logical_not(sgm))
+from matplotlib import pyplot as ppl
+ppl.figure()
+ppl.imshow(img2)
+ppl.show()
 
 #%% get connectivity information from network
 C = g.get_nx_graph()
@@ -116,30 +124,30 @@ sink_edges = np.any(connectivity==sink, axis=0)
 out_plane_loc = np.any(np.vstack([source_edges, sink_edges]), axis=0)
 connectivity2 = connectivity[:, ~out_plane_loc]
 
-#%%
+#%% Calculate misorientations for in-plane weights
+
+
+#m = (~o1).outer(o2) # from orix documentation, but slow and has memory problems
 o1 = xmap2.rotations[connectivity2[0,:]]
 o2 = xmap2.rotations[connectivity2[1,:]]
-
 m = Misorientation([o1.data, o2.data])
 m.symmetry = (symmetry.Oh, symmetry.Oh)
-m = m.map_into_symmetry_reduced_zone()
-
-#m = (~o1).outer(o2)
-
-#%%
 m2 = m.map_into_symmetry_reduced_zone()
+
 D2 = m2.angle
 
-'''
-NEXT STEP: ASSIGN D2 AS EDGE WEIGHTS, THEN PERFORM GRAPH CUT ON IT
-'''
+#%% Update graph with new in-plane weights
+
+#BB = sp.coo_array((D2[0,:],(connectivity2[0,:],connectivity2[1,:])), AA.shape)
+
+# This method preserves the out of plane weights already assigned, reassigning the in-plane weights
+CC = sp.csr_array(AA)
+CC[connectivity2[0,:],connectivity2[1,:]] = D2[0,:]
+
+# Return sparse matrix to networkx format
+newC = nx.from_scipy_sparse_array(CC)
 
 
-#%% plot graph cut
-#sgm = g.get_grid_segments(nodeids)
-#img2 = np.int_(np.logical_not(sgm))
-#from matplotlib import pyplot as ppl
-#ppl.imshow(img2)
-#ppl.show()
+
 
 
