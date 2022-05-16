@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#%%
 """
 Created on Fri May 13 09:59:31 2022
 
@@ -28,7 +29,7 @@ plt.close('all')
 #%%
 ################## load materials and image 
 # this whole section will be replaced by graph cut function eventually
-path = 'Mart2Aust/orix/graphCut/data/steel_ebsd.ang'
+path = 'data/steel_ebsd.ang'
 
 # Read each column from the file
 euler1, euler2, euler3, x, y, iq, dp, phase_id, sem, fit  = np.loadtxt(path, unpack=True)
@@ -147,7 +148,52 @@ CC[connectivity2[0,:],connectivity2[1,:]] = D2[0,:]
 # Return sparse matrix to networkx format
 newC = nx.from_scipy_sparse_array(CC)
 
+# %%
+
+g2 = maxflow.GraphFloat()
+nodeids = g2.add_grid_nodes((305, 305)) #int(np.sqrt(len(dp)))
+
+#replace extra phase with zeros and place ferrite phase in correct node spots in image
+img = np.zeros((305,305))
+for xx in range(len(for_network)):
+    coordx, coordy = int(for_network[xx,0]), int(for_network[xx,1])
+    img[coordx, coordy] = for_network[xx,2] #only using r channel for now--will be replaced with somehting else later
+img = img.T #it gets turned around
+
+structure = maxflow.vonNeumann_structure(ndim=2, directed=True)
+
+# start creating the network for graph cut
+g.add_grid_edges(nodeids, ipw, structure=structure, symmetric=True)
+g.add_grid_tedges(nodeids, img, 1-img)
+g.maxflow() #get graph cut
 
 
 
 
+# %%
+#%% different way to do orientation
+from orix.io import load
+from orix.quaternion import Rotation
+from scipy.spatial.transform import Rotation as R
+import numpy as np
+
+ebsd =xmap2
+sp_R = R.from_euler('ZXZ', ebsd.rotations.to_euler())
+n = 305
+o1 = sp_R[:-1:2]
+o2 = sp_R[1::2]
+# this line gets the misorientation (but NOT with symmetry considerations,
+# got to code that part up still)
+mis = R.__mul__(o1, o2.inv())
+# Now we just need to shave some lines off the tops and bottoms and flatten arrays
+# to get left-right, up-down, and hex-corner pairs
+ori_l = R.from_euler('ZXZ', ebsd.rotations.reshape(n, n)[1:,:].flatten().to_euler())
+ori_r = R.from_euler('ZXZ', ebsd.rotations.reshape(n, n)[:-1,:].flatten().to_euler())
+ori_u = R.from_euler('ZXZ', ebsd.rotations.reshape(n, n)[:,1:].flatten().to_euler())
+ori_d = R.from_euler('ZXZ', ebsd.rotations.reshape(n, n)[:,:-1].flatten().to_euler())
+ori_hex = R.from_euler('ZXZ', ebsd.rotations.reshape(n, n)[1:,1:].flatten().to_euler())
+ori_hex_2 = R.from_euler('ZXZ', ebsd.rotations.reshape(n, n)[:-1,:-1].flatten().to_euler())
+# misorientation connections
+lr_mis = R.__mul__(ori_l, ori_r.inv()).magnitude().reshape(n-1, n)
+ud_mis = R.__mul__(ori_u, ori_d.inv()).magnitude().reshape(n, n-1)
+hex_mis = R.__mul__(ori_hex, ori_hex_2.inv()).magnitude().reshape(n-1, n-1)
