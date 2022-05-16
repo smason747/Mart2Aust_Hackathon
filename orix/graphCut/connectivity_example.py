@@ -97,6 +97,13 @@ g.add_grid_edges(nodeids, ipw, structure=structure, symmetric=True)
 g.add_grid_tedges(nodeids, img, 1-img)
 g.maxflow() #get graph cut
 
+#%% plot graph cut
+sgm = g.get_grid_segments(nodeids)
+img2 = np.int_(np.logical_not(sgm))
+from matplotlib import pyplot as ppl
+ppl.figure()
+ppl.imshow(img2)
+ppl.show()
 
 #%% get connectivity information from network
 C = g.get_nx_graph()
@@ -134,18 +141,13 @@ D2 = m2.angle
 #BB = sp.coo_array((D2[0,:],(connectivity2[0,:],connectivity2[1,:])), AA.shape)
 
 # This method preserves the out of plane weights already assigned, reassigning the in-plane weights
-CC = sp.csr_matrix(AA)
+CC = sp.csr_array(AA)
 CC[connectivity2[0,:],connectivity2[1,:]] = D2[0,:]
 
 # Return sparse matrix to networkx format
+newC = nx.from_scipy_sparse_array(CC)
 
 
 
-#%% plot graph cut
-#sgm = g.get_grid_segments(nodeids)
-#img2 = np.int_(np.logical_not(sgm))
-#from matplotlib import pyplot as ppl
-#ppl.imshow(img2)
-#ppl.show()
 
 
